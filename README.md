@@ -105,4 +105,3 @@ preds = model.predict(X_test)
 * Edge deployment (Raspberry Pi)
 * Adversarial robustness
 
-```
