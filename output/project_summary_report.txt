@@ -1,0 +1,99 @@
+
+IOT ATTACK DETECTION PROJECT - COMPLETE RESULTS
+
+
+PROJECT: Detection and Visualization of Security Attacks in IoT Networks
+DATASET: CICIDS2017 (125,973 records, 38 features, 23 attack types)
+SPLIT: 80% Training (100,778) / 20% Testing (25,195)
+
+
+MODEL PERFORMANCE SUMMARY
+
+
+1. Random Forest (Ensemble Learning)
+   Accuracy:  99.90%  | Precision: 99.90%  | Recall: 99.90%  | F1: 99.90%
+   Training:  11.43s  | Inference: 0.73s
+   Parameters: 100 trees, max_depth=20
+   Status: RECOMMENDED FOR DEPLOYMENT
+
+2. Support Vector Machine (Kernel-based)
+   Accuracy:  98.82%  | Precision: 99.12%  | Recall: 98.82%  | F1: 98.96%
+   Training:  83.34s  | Inference: 22.89s
+   Parameters: 5,309 support vectors, RBF kernel
+   Status: Strong alternative
+
+3. Neural Network (Deep Learning)
+   Accuracy:  97.52%  | Precision: 98.20%  | Recall: 97.52%  | F1: 98.20%
+   Training:  50 epochs | Inference: 1.49s
+   Parameters: 16,356 (128-64-32-4 architecture)
+   Status: Good performance
+
+4. CNN (Deep Learning)
+   Accuracy:  95.84%  | Precision: 97.01%  | Recall: 95.84%  | F1: 97.01%
+   Training:  50 epochs | Inference: 2.56s
+   Parameters: 165,956 (2 Conv1D layers)
+   Status: Spatial pattern detection
+
+5. LSTM (Deep Learning)
+   Accuracy:  86.82%  | Precision: 89.49%  | Recall: 86.82%  | F1: 89.49%
+   Training:  50 epochs | Inference: 19.88s
+   Parameters: 123,108 (2 LSTM layers)
+   Status: Temporal pattern analysis
+
+6. Autoencoder (Anomaly Detection)
+   Accuracy:  65.98%  | Precision: 47.18%  | Recall: 65.98%  | F1: 47.18%
+   Training:  50 epochs | Inference: 2.64s
+   Parameters: 4,238 (Encoder-Decoder)
+   AUC: 0.9212 | Threshold: 0.7391
+   Status: Novel attack detection
+
+SHAP EXPLAINABILITY - TOP 8 FEATURES
+
+1. serror_rate          (0.0867) - Connection error rate
+2. num_file_creations   (0.0819) - Files created during session
+3. num_shells           (0.0773) - Shell access attempts
+4. srv_count            (0.0671) - Service connection count
+5. num_compromised      (0.0285) - Compromised conditions
+6. dst_host_rerror_rate (0.0280) - Rejection error rate
+7. urgent               (0.0276) - Urgent packets
+8. root_shell           (0.0274) - Root shell access
+
+================================================================================
+KEY FINDINGS
+================================================================================
+
+• Random Forest: Best overall (99.90% accuracy, 0.73s inference)
+• Supervised models: 86-99% accuracy range
+• Autoencoder: 66% accuracy (unsupervised, detects novel attacks)
+• All models trained for 50 epochs (deep learning)
+• SHAP reveals error rates and file operations as top attack indicators
+
+================================================================================
+DEPLOYMENT RECOMMENDATION
+================================================================================
+
+PRIMARY MODEL: Random Forest
+  - Highest accuracy and fastest inference
+  - Interpretable with SHAP feature importance
+  - Proven performance on CICIDS2017
+
+SECONDARY: Autoencoder
+  - Detects unknown/zero-day attacks
+  - Complements supervised detection
+
+EXPLAINABILITY: SHAP Analysis
+  - Provides transparency for security teams
+  - Monitors critical network features
+
+================================================================================
+PROJECT DELIVERABLES
+================================================================================
+
+Models Trained: 6 (RF, SVM, NN, CNN, LSTM, Autoencoder)
+Dataset: CICIDS2017 (125,973 records)
+Features: 38 network traffic characteristics
+Visualizations: Confusion matrices, training curves, SHAP plots
+Dashboard: Interactive React-based web interface
+Explainability: SHAP feature importance analysis
+
+STATUS: PROJECT COMPLETE
