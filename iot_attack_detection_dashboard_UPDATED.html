@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IoT Attack Detection Dashboard - Complete Analysis</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 30px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 30px 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.8em;
+            margin-bottom: 15px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+            overflow-x: auto;
+        }
+
+        .nav-tab {
+            padding: 12px 24px;
+            border: none;
+            background: #f7fafc;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .nav-tab:hover {
+            background: #edf2f7;
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 25px;
+            border-radius: 15px;
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transition: transform 0.3s;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .metric-label {
+            font-size: 0.95em;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+
+        .metric-value {
+            font-size: 2.2em;
+            font-weight: bold;
+        }
+
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid;
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card.normal {
+            background: #f0fdf4;
+            border-color: #86efac;
+        }
+
+        .stat-card.attack {
+            background: #fef2f2;
+            border-color: #fca5a5;
+        }
+
+        .stat-card.detection {
+            background: #eff6ff;
+            border-color: #93c5fd;
+        }
+
+        .stat-label {
+            font-size: 0.95em;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .stat-card.normal .stat-label {
+            color: #166534;
+        }
+
+        .stat-card.attack .stat-label {
+            color: #991b1b;
+        }
+
+        .stat-card.detection .stat-label {
+            color: #1e40af;
+        }
+
+        .stat-value {
+            font-size: 3em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .stat-card.normal .stat-value {
+            color: #16a34a;
+        }
+
+        .stat-card.attack .stat-value {
+            color: #dc2626;
+        }
+
+        .stat-card.detection .stat-value {
+            color: #2563eb;
+        }
+
+        .stat-subtitle {
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .stat-card.normal .stat-subtitle {
+            color: #22c55e;
+        }
+
+        .stat-card.attack .stat-subtitle {
+            color: #ef4444;
+        }
+
+        .stat-card.detection .stat-subtitle {
+            color: #3b82f6;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            background: #f7fafc;
+            padding: 25px;
+            border-radius: 15px;
+        }
+
+        .section h2 {
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-left: 5px solid #667eea;
+            padding-left: 15px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .comparison-table th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .comparison-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .comparison-table tr:hover {
+            background: #f7fafc;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .badge-excellent { background: #d1fae5; color: #065f46; }
+        .badge-good { background: #dbeafe; color: #1e40af; }
+        .badge-fair { background: #fed7aa; color: #92400e; }
+        .badge-poor { background: #fee2e2; color: #991b1b; }
+
+        .insight-box {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+            margin-top: 20px;
+        }
+
+        .insight-box h3 {
+            color: #667eea;
+            margin-bottom: 12px;
+        }
+
+        .model-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .model-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .model-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+            transform: translateY(-3px);
+        }
+
+        .winner-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
+        }
+
+        .chart-container {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: #667eea;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .view-details-btn {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            width: 100%;
+        }
+
+        .view-details-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 900px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .confusion-matrix {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .confusion-cell {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .feature-importance-chart {
+            margin-top: 20px;
+        }
+
+        .importance-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .importance-label {
+            width: 180px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        .importance-bar-container {
+            flex: 1;
+            height: 25px;
+            background: #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 0 10px;
+        }
+
+        .importance-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 1s ease-out;
+        }
+
+        .importance-value {
+            font-size: 0.9em;
+            font-weight: bold;
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        function Dashboard() {
+            const [activeTab, setActiveTab] = useState('overview');
+            const [selectedModel, setSelectedModel] = useState(null);
+            const [selectedFeature, setSelectedFeature] = useState(null);
+
+            const modelData = [
+                {
+                    name: "Random Forest",
+                    rank: 1,
+                    accuracy: "99.90%",
+                    precision: "99.90%",
+                    recall: "99.90%",
+                    f1: "99.90%",
+                    trainingTime: "7.28s",
+                    inferenceTime: "0.726s",
+                    parameters: "100 trees",
+                    u2rRecall: "62.5% (5/8)",
+                    r2lRecall: "91.67% (11/12)",
+                    falsePositives: "Very Low (5)",
+                    confusionMatrix: [[13464, 4, 0, 1], [17, 11689, 0, 0], [1, 0, 11, 0], [3, 0, 0, 5]]
+                },
+                {
+                    name: "SVM",
+                    rank: 2,
+                    accuracy: "98.82%",
+                    precision: "99.12%",
+                    recall: "98.82%",
+                    f1: "98.96%",
+                    trainingTime: "76.57s",
+                    inferenceTime: "22.894s",
+                    parameters: "5,309 SVs",
+                    u2rRecall: "75% (6/8)",
+                    r2lRecall: "91.67% (11/12)",
+                    falsePositives: "High (81)",
+                    confusionMatrix: [[13297, 94, 9, 69], [111, 11583, 0, 12], [1, 0, 11, 0], [0, 2, 0, 6]]
+                },
+                {
+                    name: "Neural Network",
+                    rank: 3,
+                    accuracy: "97.52%",
+                    precision: "98.94%",
+                    recall: "97.52%",
+                    f1: "98.20%",
+                    trainingTime: "~200s (50 epochs)",
+                    inferenceTime: "1.491s",
+                    parameters: "16,356",
+                    u2rRecall: "87.5% (7/8)",
+                    r2lRecall: "91.67% (11/12)",
+                    falsePositives: "Very High (343)",
+                    confusionMatrix: [[13104, 100, 28, 237], [144, 11449, 7, 106], [0, 1, 11, 0], [1, 0, 0, 7]]
+                },
+                {
+                    name: "CNN",
+                    rank: 4,
+                    accuracy: "95.84%",
+                    precision: "98.27%",
+                    recall: "95.84%",
+                    f1: "97.01%",
+                    trainingTime: "~1200s (50 epochs)",
+                    inferenceTime: "2.559s",
+                    parameters: "165,956",
+                    u2rRecall: "100% (8/8)",
+                    r2lRecall: "91.67% (11/12)",
+                    falsePositives: "Catastrophic (603)",
+                    confusionMatrix: [[12849, 154, 23, 443], [254, 11278, 14, 160], [1, 0, 11, 0], [0, 0, 0, 8]]
+                },
+                {
+                    name: "LSTM",
+                    rank: 5,
+                    accuracy: "86.82%",
+                    precision: "92.57%",
+                    recall: "86.82%",
+                    f1: "89.49%",
+                    trainingTime: "~6600s (50 epochs)",
+                    inferenceTime: "19.878s",
+                    parameters: "123,108",
+                    u2rRecall: "100% (8/8)",
+                    r2lRecall: "83.33% (10/12)",
+                    falsePositives: "Extreme (1,437)",
+                    confusionMatrix: [[11219, 1040, 74, 1136], [717, 10638, 50, 301], [0, 1, 10, 1], [0, 0, 0, 8]]
+                },
+                {
+                    name: "Autoencoder",
+                    rank: 6,
+                    accuracy: "65.98%",
+                    precision: "85.03%",
+                    recall: "32.65%",
+                    f1: "47.18%",
+                    trainingTime: "~100s (50 epochs)",
+                    inferenceTime: "2.642s",
+                    parameters: "4,238",
+                    u2rRecall: "Binary Detection",
+                    r2lRecall: "Binary Detection",
+                    falsePositives: "Moderate",
+                    confusionMatrix: [[12795, 674], [7898, 3828]]
+                }
+            ];
+
+            const shapFeatures = [
+                { name: 'serror_rate', importance: 0.0867, desc: 'SYN error rate - DoS/DDoS indicator' },
+                { name: 'num_file_creations', importance: 0.0819, desc: 'File system attack indicator' },
+                { name: 'num_shells', importance: 0.0773, desc: 'Shell access attempts - privilege escalation' },
+                { name: 'srv_count', importance: 0.0671, desc: 'Service connection patterns' },
+                { name: 'num_compromised', importance: 0.0285, desc: 'Direct attack success indicator' },
+                { name: 'dst_host_rerror_rate', importance: 0.0280, desc: 'Rejection errors - scanning/probing' },
+                { name: 'urgent', importance: 0.0276, desc: 'Urgent packets - rare in normal traffic' },
+                { name: 'root_shell', importance: 0.0274, desc: 'Root access - U2R detection' }
+            ];
+
+            const ModelModal = ({ model, onClose }) => {
+                const maxVal = Math.max(...model.confusionMatrix.flat());
+
+                return (
+                    <div className="modal" onClick={onClose}>
+                        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                            <button className="modal-close" onClick={onClose}>×</button>
+                            <h2 style={{marginBottom: '20px', color: '#2d3748'}}>{model.name} - Detailed Analysis</h2>
+
+                            <div style={{marginBottom: '30px'}}>
+                                <h3 style={{color: '#667eea', marginBottom: '15px'}}>Confusion Matrix</h3>
+                                <div className="confusion-matrix">
+                                    {model.confusionMatrix.map((row, i) =>
+                                        row.map((val, j) => {
+                                            const isDiagonal = i === j;
+                                            const intensity = val / maxVal;
+                                            return (
+                                                <div key={`${i}-${j}`} className="confusion-cell" style={{
+                                                    background: isDiagonal
+                                                        ? `rgba(16, 185, 129, ${0.3 + intensity * 0.7})`
+                                                        : `rgba(239, 68, 68, ${0.2 + intensity * 0.5})`
+                                                }}>
+                                                    {val}
+                                                </div>
+                                            );
+                                        })
+                                    )}
+                                </div>
+                                <div style={{marginTop: '12px', fontSize: '0.85em', color: '#718096', textAlign: 'center'}}>
+                                    {model.name === 'Autoencoder' ? 'Normal | Attack' : 'Normal | Other | R2L | U2R'}
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 style={{color: '#667eea', marginBottom: '15px'}}>Performance Visualization</h3>
+                                <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px'}}>
+                                    {[
+                                        {label: 'Accuracy', value: model.accuracy},
+                                        {label: 'Precision', value: model.precision},
+                                        {label: 'Recall', value: model.recall},
+                                        {label: 'F1-Score', value: model.f1}
+                                    ].map((metric, idx) => (
+                                        <div key={idx} style={{background: '#f7fafc', padding: '15px', borderRadius: '10px'}}>
+                                            <div style={{fontSize: '0.9em', color: '#718096', marginBottom: '8px'}}>{metric.label}</div>
+                                            <div style={{fontSize: '1.8em', fontWeight: 'bold', color: '#667eea', marginBottom: '10px'}}>
+                                                {metric.value}
+                                            </div>
+                                            <div style={{
+                                                width: '100%',
+                                                height: '8px',
+                                                background: '#e2e8f0',
+                                                borderRadius: '10px',
+                                                overflow: 'hidden'
+                                            }}>
+                                                <div style={{
+                                                    width: metric.value,
+                                                    height: '100%',
+                                                    background: 'linear-gradient(90deg, #10b981, #059669)',
+                                                    borderRadius: '10px',
+                                                    transition: 'width 1s ease-out'
+                                                }}></div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            };
+
+            const FeatureModal = ({ feature, onClose }) => (
+                <div className="modal" onClick={onClose}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <button className="modal-close" onClick={onClose}>×</button>
+                        <h2 style={{marginBottom: '20px', color: '#2d3748'}}>{feature.name}</h2>
+
+                        <div style={{marginBottom: '20px'}}>
+                            <p style={{color: '#4a5568', lineHeight: '1.8', fontSize: '1.1em'}}>
+                                {feature.desc}
+                            </p>
+                        </div>
+
+                        <div className="feature-importance-chart">
+                            <h3 style={{color: '#667eea', marginBottom: '15px'}}>Feature Importance Visualization</h3>
+                            <div className="importance-bar">
+                                <div className="importance-label">SHAP Value</div>
+                                <div className="importance-bar-container">
+                                    <div className="importance-bar-fill" style={{width: `${feature.importance * 1000}%`}}></div>
+                                </div>
+                                <div className="importance-value">{(feature.importance * 100).toFixed(2)}%</div>
+                            </div>
+                        </div>
+
+                        <div style={{marginTop: '30px', padding: '20px', background: '#f7fafc', borderRadius: '10px'}}>
+                            <h4 style={{color: '#2d3748', marginBottom: '10px'}}>Security Relevance</h4>
+                            <p style={{color: '#4a5568', lineHeight: '1.6'}}>
+                                This feature is critical for detecting attack patterns in IoT network traffic.
+                                High values of {feature.name} often indicate malicious behavior and trigger
+                                classification as an attack by the Random Forest model.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            );
+
+            const renderOverview = () => (
+                <div>
+                    <div className="stats-cards">
+                        <div className="stat-card normal">
+                            <div className="stat-label">Normal Traffic Detected</div>
+                            <div className="stat-value">67,343</div>
+                            <div className="stat-subtitle">53.5% of total</div>
+                        </div>
+                        <div className="stat-card attack">
+                            <div className="stat-label">Attacks Detected</div>
+                            <div className="stat-value">58,630</div>
+                            <div className="stat-subtitle">46.5% of total</div>
+                        </div>
+                        <div className="stat-card detection">
+                            <div className="stat-label">Detection Rate</div>
+                            <div className="stat-value">99.90%</div>
+                            <div className="stat-subtitle">Random Forest model</div>
+                        </div>
+                    </div>
+
+                    <div className="metrics">
+                        <div className="metric-card">
+                            <div className="metric-label">Best Model</div>
+                            <div className="metric-value">Random Forest</div>
+                        </div>
+                        <div className="metric-card">
+                            <div className="metric-label">Best Accuracy</div>
+                            <div className="metric-value">99.90%</div>
+                        </div>
+                        <div className="metric-card">
+                            <div className="metric-label">Fastest Inference</div>
+                            <div className="metric-value">0.726s</div>
+                        </div>
+                        <div className="metric-card">
+                            <div className="metric-label">Models Tested</div>
+                            <div className="metric-value">6</div>
+                        </div>
+                    </div>
+
+                    <div className="section">
+                        <h2>Executive Summary</h2>
+                        <div className="insight-box">
+                            <h3>Key Findings</h3>
+                            <ul style={{marginLeft: '20px', lineHeight: '1.8', color: '#4a5568'}}>
+                                <li><strong>Random Forest dominates</strong> with 99.90% accuracy, fastest inference (0.726s), and minimal false positives</li>
+                                <li><strong>Traditional ML outperforms Deep Learning</strong> - RF is 31x faster than SVM, 27x faster than LSTM</li>
+                                <li><strong>Deep learning struggles</strong> with tabular IoT data lacking spatial/temporal structure</li>
+                                <li><strong>Class imbalance challenge</strong>: Only 8 U2R and 12 R2L attacks in test set makes rare attack detection difficult</li>
+                                <li><strong>SHAP explainability</strong> reveals security-relevant features (error rates, shell access) matter more than volume metrics</li>
+                            </ul>
+                        </div>
+
+                        <div className="insight-box" style={{marginTop: '20px', borderLeftColor: '#10b981'}}>
+                            <h3 style={{color: '#10b981'}}>Production Recommendation</h3>
+                            <p style={{color: '#4a5568', lineHeight: '1.8', fontSize: '1.05em'}}>
+                                <strong>Deploy Random Forest</strong> for IoT security. It achieves the best balance of accuracy (99.90%),
+                                speed (34,700 packets/sec), and interpretability (SHAP analysis).
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="section">
+                        <h2>Complete Model Comparison</h2>
+                        <table className="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Model</th>
+                                    <th>Accuracy</th>
+                                    <th>Training Time</th>
+                                    <th>Inference Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {modelData.map(model => (
+                                    <tr key={model.name}>
+                                        <td><strong>{model.rank}</strong></td>
+                                        <td><strong>{model.name}</strong></td>
+                                        <td>{model.accuracy}</td>
+                                        <td>{model.trainingTime}</td>
+                                        <td>{model.inferenceTime}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            );
+
+            const renderDetailedAnalysis = () => (
+                <div>
+                    <div className="section">
+                        <h2>Detailed Performance Analysis</h2>
+                        <p style={{color: '#718096', marginBottom: '20px', fontSize: '1.05em'}}>
+                            Comprehensive breakdown of all 6 models tested on CICIDS2017 dataset (125,973 samples)
+                        </p>
+
+                        <div className="model-grid">
+                            {modelData.map(model => (
+                                <div key={model.name} className="model-card">
+                                    {model.rank === 1 && <div className="winner-badge">Recommended</div>}
+                                    <h3 style={{color: '#2d3748', marginBottom: '15px', fontSize: '1.3em'}}>{model.name}</h3>
+                                    <div style={{background: '#f7fafc', padding: '15px', borderRadius: '10px', marginBottom: '15px'}}>
+                                        <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', fontSize: '0.9em'}}>
+                                            <div><strong>Accuracy:</strong> {model.accuracy}</div>
+                                            <div><strong>Precision:</strong> {model.precision}</div>
+                                            <div><strong>Recall:</strong> {model.recall}</div>
+                                            <div><strong>F1-Score:</strong> {model.f1}</div>
+                                        </div>
+                                    </div>
+
+                                    <div style={{marginBottom: '15px'}}>
+                                        <div style={{fontSize: '0.9em', color: '#718096', marginBottom: '5px'}}><strong>Rare Attack Detection:</strong></div>
+                                        <div style={{fontSize: '0.85em', color: '#4a5568'}}>U2R: {model.u2rRecall}</div>
+                                        <div style={{fontSize: '0.85em', color: '#4a5568'}}>R2L: {model.r2lRecall}</div>
+                                        <div style={{fontSize: '0.85em', color: '#4a5568'}}>FP: {model.falsePositives}</div>
+                                    </div>
+
+                                    <div style={{marginBottom: '15px'}}>
+                                        <div style={{fontSize: '0.9em', color: '#718096', marginBottom: '5px'}}><strong>Performance:</strong></div>
+                                        <div style={{fontSize: '0.85em', color: '#4a5568'}}>Training: {model.trainingTime}</div>
+                                        <div style={{fontSize: '0.85em', color: '#4a5568'}}>Inference: {model.inferenceTime}</div>
+                                        <div style={{fontSize: '0.85em', color: '#4a5568'}}>Params: {model.parameters}</div>
+                                    </div>
+
+                                    <button className="view-details-btn" onClick={() => setSelectedModel(model)}>
+                                        View Confusion Matrix
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="section">
+                        <h2>Speed Comparison</h2>
+                        <div className="chart-container">
+                            <h3 style={{marginBottom: '20px'}}>Inference Time on 25,195 Samples</h3>
+                            <div style={{display: 'grid', gap: '10px'}}>
+                                {[
+                                    {name: 'Random Forest', time: 0.726, color: '#10b981'},
+                                    {name: 'Neural Network', time: 1.491, color: '#3b82f6'},
+                                    {name: 'CNN', time: 2.559, color: '#8b5cf6'},
+                                    {name: 'Autoencoder', time: 2.642, color: '#f59e0b'},
+                                    {name: 'LSTM', time: 19.878, color: '#ef4444'},
+                                    {name: 'SVM', time: 22.894, color: '#dc2626'}
+                                ].map(model => (
+                                    <div key={model.name}>
+                                        <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '5px'}}>
+                                            <span style={{fontWeight: '600'}}>{model.name}</span>
+                                            <span style={{color: model.color, fontWeight: 'bold'}}>{model.time}s</span>
+                                        </div>
+                                        <div style={{background: '#e2e8f0', borderRadius: '10px', height: '12px', overflow: 'hidden'}}>
+                                            <div style={{
+                                                background: model.color,
+                                                width: `${(model.time / 22.894) * 100}%`,
+                                                height: '100%',
+                                                transition: 'width 1s'
+                                            }}></div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="insight-box" style={{marginTop: '20px'}}>
+                                <p style={{color: '#4a5568'}}>
+                                    <strong>Random Forest is 31x faster than SVM</strong> and <strong>27x faster than LSTM</strong>.
+                                    For real-time IoT security, RF can process <strong>34,700 packets/second</strong> vs SVM's 1,100 packets/second.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {selectedModel && <ModelModal model={selectedModel} onClose={() => setSelectedModel(null)} />}
+                </div>
+            );
+
+            const renderSHAP = () => (
+                <div>
+                    <div className="section">
+                        <h2>SHAP Explainability Analysis</h2>
+                        <div className="insight-box">
+                            <h3>Why SHAP Matters for IoT Security</h3>
+                            <p style={{color: '#4a5568', lineHeight: '1.8'}}>
+                                SHAP (SHapley Additive exPlanations) provides transparent, interpretable explanations for
+                                Random Forest predictions. Unlike black-box models, SHAP shows <strong>exactly which features</strong>
+                                contributed to classifying network traffic as malicious, enabling security teams to understand
+                                and validate attack detection.
+                            </p>
+                        </div>
+
+                        <h3 style={{color: '#2d3748', margin: '30px 0 20px 0'}}>Top 8 Most Important Features</h3>
+                        <div className="model-grid">
+                            {shapFeatures.map((feature, idx) => (
+                                <div key={feature.name} className="feature-card" onClick={() => setSelectedFeature(feature)}>
+                                    <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px'}}>
+                                        <div style={{
+                                            background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                                            color: 'white',
+                                            width: '40px',
+                                            height: '40px',
+                                            borderRadius: '50%',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            fontWeight: 'bold',
+                                            fontSize: '1.2em'
+                                        }}>
+                                            {idx + 1}
+                                        </div>
+                                        <div style={{
+                                            fontSize: '0.9em',
+                                            color: '#667eea',
+                                            fontWeight: 'bold'
+                                        }}>
+                                            {(feature.importance * 100).toFixed(2)}%
+                                        </div>
+                                    </div>
+                                    <h4 style={{color: '#2d3748', marginBottom: '8px', fontSize: '1.05em'}}>
+                                        {feature.name}
+                                    </h4>
+                                    <p style={{fontSize: '0.9em', color: '#718096', lineHeight: '1.5'}}>
+                                        {feature.desc}
+                                    </p>
+                                    <div style={{marginTop: '12px', height: '6px', background: '#e2e8f0', borderRadius: '10px', overflow: 'hidden'}}>
+                                        <div style={{
+                                            height: '100%',
+                                            background: 'linear-gradient(90deg, #667eea, #764ba2)',
+                                            width: `${feature.importance * 1000}%`,
+                                            transition: 'width 1s'
+                                        }}></div>
+                                    </div>
+                                    <button className="view-details-btn" onClick={(e) => { e.stopPropagation(); setSelectedFeature(feature); }}>
+                                        View Detailed Analysis
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="insight-box" style={{marginTop: '30px', borderLeftColor: '#667eea'}}>
+                            <h3 style={{color: '#667eea'}}>Key Insights</h3>
+                            <ul style={{marginLeft: '20px', lineHeight: '1.8', color: '#4a5568'}}>
+                                <li><strong>Security-relevant features dominate:</strong> Error rates, shell access, and file operations are most important</li>
+                                <li><strong>Different from RF importance:</strong> SHAP shows <code>serror_rate</code> as #1, while RF showed <code>dst_bytes</code></li>
+                                <li><strong>Attack-type specific:</strong> <code>num_shells</code> and <code>root_shell</code> critical for U2R detection</li>
+                                <li><strong>Volume metrics less important:</strong> Byte counts matter less than behavioral patterns</li>
+                            </ul>
+                        </div>
+
+                        <div style={{background: 'white', padding: '25px', borderRadius: '12px', marginTop: '25px'}}>
+                            <h3 style={{color: '#2d3748', marginBottom: '15px'}}>SHAP vs Random Forest Feature Importance</h3>
+                            <table className="comparison-table">
+                                <thead>
+                                    <tr>
+                                        <th>SHAP Rank</th>
+                                        <th>Feature</th>
+                                        <th>SHAP Importance</th>
+                                        <th>RF Rank</th>
+                                        <th>RF Importance</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>1</td>
+                                        <td>serror_rate</td>
+                                        <td>8.67%</td>
+                                        <td>13th</td>
+                                        <td>2.88%</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2</td>
+                                        <td>num_file_creations</td>
+                                        <td>8.19%</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                    </tr>
+                                    <tr>
+                                        <td>3</td>
+                                        <td>num_shells</td>
+                                        <td>7.73%</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                    </tr>
+                                    <tr>
+                                        <td>-</td>
+                                        <td>dst_bytes</td>
+                                        <td>Lower</td>
+                                        <td>1st</td>
+                                        <td>10.57%</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    {selectedFeature && <FeatureModal feature={selectedFeature} onClose={() => setSelectedFeature(null)} />}
+                </div>
+            );
+
+            const renderDataset = () => (
+                <div>
+                    <div className="section">
+                        <h2>CICIDS2017 Dataset Information</h2>
+                        <div className="metrics">
+                            <div className="metric-card">
+                                <div className="metric-label">Total Records</div>
+                                <div className="metric-value">125,973</div>
+                            </div>
+                            <div className="metric-card">
+                                <div className="metric-label">Training Set</div>
+                                <div className="metric-value">100,778</div>
+                            </div>
+                            <div className="metric-card">
+                                <div className="metric-label">Test Set</div>
+                                <div className="metric-value">25,195</div>
+                            </div>
+                            <div className="metric-card">
+                                <div className="metric-label">Features</div>
+                                <div className="metric-value">38</div>
+                            </div>
+                        </div>
+
+                        <div className="chart-container">
+                            <h3 style={{marginBottom: '20px'}}>Class Distribution in Test Set</h3>
+                            {[
+                                {name: 'Normal', count: 13469, color: '#10b981'},
+                                {name: 'Other (DoS, Probe)', count: 11706, color: '#3b82f6'},
+                                {name: 'R2L (Remote to Local)', count: 12, color: '#f59e0b'},
+                                {name: 'U2R (User to Root)', count: 8, color: '#ef4444'}
+                            ].map(cls => (
+                                <div key={cls.name} style={{marginBottom: '15px'}}>
+                                    <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '5px'}}>
+                                        <span style={{fontWeight: '600'}}>{cls.name}</span>
+                                        <span style={{color: cls.color, fontWeight: 'bold'}}>
+                                            {cls.count.toLocaleString()} ({((cls.count / 25195) * 100).toFixed(2)}%)
+                                        </span>
+                                    </div>
+                                    <div style={{background: '#e2e8f0', borderRadius: '10px', height: '12px', overflow: 'hidden'}}>
+                                        <div style={{
+                                            background: cls.color,
+                                            width: `${(cls.count / 13469) * 100}%`,
+                                            height: '100%',
+                                            transition: 'width 1s'
+                                        }}></div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="insight-box" style={{marginTop: '20px', borderLeftColor: '#ef4444'}}>
+                            <h3 style={{color: '#ef4444'}}>Class Imbalance Challenge</h3>
+                            <p style={{color: '#4a5568', lineHeight: '1.8'}}>
+                                The extreme class imbalance (only <strong>8 U2R</strong> and <strong>12 R2L</strong> attacks
+                                in 25,195 test samples) makes rare attack detection extremely challenging. This is why even
+                                the best models struggle with U2R detection, and why high false positive rates occur when
+                                models try to maximize recall for these rare attacks.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            );
+
+            const renderConclusions = () => (
+                <div>
+                    <div className="section">
+                        <h2>Key Conclusions & Recommendations</h2>
+
+                        <div className="insight-box" style={{borderLeftColor: '#10b981'}}>
+                            <h3 style={{color: '#10b981'}}>What Works</h3>
+                            <ul style={{marginLeft: '20px', lineHeight: '1.8', color: '#4a5568'}}>
+                                <li><strong>Random Forest:</strong> Best overall - 99.90% accuracy, 0.726s inference, minimal false positives</li>
+                                <li><strong>Traditional ML superiority:</strong> Outperforms deep learning for tabular IoT data</li>
+                                <li><strong>SHAP explainability:</strong> Makes black-box models interpretable for security teams</li>
+                                <li><strong>Balanced approach:</strong> Class weights help but extreme imbalance remains challenging</li>
+                            </ul>
+                        </div>
+
+                        <div className="insight-box" style={{marginTop: '20px', borderLeftColor: '#ef4444'}}>
+                            <h3 style={{color: '#ef4444'}}>What Doesn't Work</h3>
+                            <ul style={{marginLeft: '20px', lineHeight: '1.8', color: '#4a5568'}}>
+                                <li><strong>CNN:</strong> Wrong architecture - no spatial patterns in tabular data (603 false positives for U2R)</li>
+                                <li><strong>LSTM:</strong> Complete failure - no temporal structure (1,437 false positives, 86.82% accuracy)</li>
+                                <li><strong>Autoencoder:</strong> Misses 67% of attacks - threshold-based detection insufficient</li>
+                                <li><strong>Extreme class weights:</strong> Creates false positive explosions in neural networks</li>
+                            </ul>
+                        </div>
+
+                        <div className="insight-box" style={{marginTop: '20px', borderLeftColor: '#667eea'}}>
+                            <h3 style={{color: '#667eea'}}>Production Deployment Strategy</h3>
+                            <div style={{color: '#4a5568', lineHeight: '1.8'}}>
+                                <p><strong>Primary System:</strong> Random Forest</p>
+                                <ul style={{marginLeft: '20px', marginTop: '10px'}}>
+                                    <li>Deploy on edge IoT devices (low latency, small model)</li>
+                                    <li>Real-time classification at 34,700 packets/second</li>
+                                    <li>SHAP explanations for security analyst review</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div className="insight-box" style={{marginTop: '20px', borderLeftColor: '#8b5cf6'}}>
+                            <h3 style={{color: '#8b5cf6'}}>Future Work</h3>
+                            <ul style={{marginLeft: '20px', lineHeight: '1.8', color: '#4a5568'}}>
+                                <li><strong>Ensemble methods:</strong> Weighted voting of RF + SVM for rare attack detection</li>
+                                <li><strong>Synthetic oversampling:</strong> SMOTE or ADASYN for U2R/R2L classes</li>
+                                <li><strong>Cross-dataset validation:</strong> Test on NSL-KDD, CSE-CIC-IDS2018</li>
+                                <li><strong>Real-time deployment:</strong> Implement on Raspberry Pi or edge gateway</li>
+                                <li><strong>Adversarial robustness:</strong> Test against evasion attacks</li>
+                                <li><strong>Online learning:</strong> Adaptive models that learn from new attack patterns</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            );
+
+            return (
+                <div className="container">
+                    <div className="header">
+                        <h1>IoT Attack Detection System</h1>
+                        <p>Syracuse University - Graduate Research Project - Fall 2025</p>
+                        <p style={{fontSize: '0.95em', marginTop: '10px', opacity: 0.9}}>
+                            Built with React - Machine Learning - CICIDS2017 Dataset
+                        </p>
+                    </div>
+
+                    <div className="nav-tabs">
+                        <button className={`nav-tab ${activeTab === 'overview' ? 'active' : ''}`} onClick={() => setActiveTab('overview')}>
+                            Overview
+                        </button>
+                        <button className={`nav-tab ${activeTab === 'detailed' ? 'active' : ''}`} onClick={() => setActiveTab('detailed')}>
+                            Detailed Analysis
+                        </button>
+                        <button className={`nav-tab ${activeTab === 'shap' ? 'active' : ''}`} onClick={() => setActiveTab('shap')}>
+                            SHAP Explainability
+                        </button>
+                        <button className={`nav-tab ${activeTab === 'dataset' ? 'active' : ''}`} onClick={() => setActiveTab('dataset')}>
+                            Dataset Info
+                        </button>
+                        <button className={`nav-tab ${activeTab === 'conclusions' ? 'active' : ''}`} onClick={() => setActiveTab('conclusions')}>
+                            Conclusions
+                        </button>
+                    </div>
+
+                    {activeTab === 'overview' && renderOverview()}
+                    {activeTab === 'detailed' && renderDetailedAnalysis()}
+                    {activeTab === 'shap' && renderSHAP()}
+                    {activeTab === 'dataset' && renderDataset()}
+                    {activeTab === 'conclusions' && renderConclusions()}
+                </div>
+            );
+        }
+
+        ReactDOM.render(<Dashboard />, document.getElementById('root'));
+    </script>
+</body>
+</html>
